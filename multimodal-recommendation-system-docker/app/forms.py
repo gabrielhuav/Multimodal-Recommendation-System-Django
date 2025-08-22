@@ -88,3 +88,10 @@ class AnimeSearchForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Attack on Titan'})
     )
+
+class LibroSearchForm(forms.Form):
+    query = forms.CharField(
+        label='Buscar Libro',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Harry Potter'})
+    )

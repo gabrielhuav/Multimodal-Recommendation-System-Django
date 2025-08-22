@@ -27,16 +27,25 @@ class Usuario(models.Model):
         verbose_name_plural = 'Usuarios'
 
 class Favorito(models.Model):
+    TIPO_CONTENIDO = [
+        ('anime', 'Anime'),
+        ('libro', 'Libro'),
+    ]
+    
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='favoritos')
-    anime_id = models.IntegerField()  # Corresponde a mal_id de Jikan API
-    anime_titulo = models.CharField(max_length=255)
+    contenido_id = models.CharField(max_length=100)  # mal_id para anime, work_id para libros
+    contenido_titulo = models.CharField(max_length=255)
+    tipo_contenido = models.CharField(max_length=10, choices=TIPO_CONTENIDO)
+    autor = models.CharField(max_length=255, blank=True, null=True)  # Para libros
     fecha_agregado = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('usuario', 'anime_id') # Evita que un usuario marque el mismo anime como favorito múltiples veces
-        db_table = 'favoritos_anime'
+        unique_together = ('usuario', 'contenido_id', 'tipo_contenido')
+        db_table = 'favoritos_contenido'
         verbose_name = 'Favorito'
         verbose_name_plural = 'Favoritos'
 
     def __str__(self):
-        return f"{self.anime_titulo} (Favorito de {self.usuario.nombre})"
+        if self.tipo_contenido == 'libro':
+            return f"{self.contenido_titulo} por {self.autor} (Favorito de {self.usuario.nombre})"
+        return f"{self.contenido_titulo} (Favorito de {self.usuario.nombre})"

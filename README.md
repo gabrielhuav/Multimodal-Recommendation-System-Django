@@ -1,52 +1,60 @@
-# 🎯 Multimodal Recommendation System
+# 🎯 Multimodal Content Discovery Platform
 
-A Django-based web application that enables users to search, bookmark, and receive personalized recommendations for multimedia content. Currently implemented with anime (Jikan API) and designed to expand to movies, books, and other content types.
+A Django-based web application that enables users to search, bookmark, and receive recommendations for multimedia content. Currently implemented with anime (Jikan API) and books (OpenLibrary API).
 
 ## ✨ Features
 
-### 🔐 Authentication System
+### 🔐 User Authentication
 - User registration and login
 - Secure session management
 - User roles (User/Administrator)
 - Django admin panel
 
 ### 🔍 Content Search
-- **Anime**: Integrated search with Jikan API (MyAnimeList)
+- **Anime**: Search integration with Jikan API (MyAnimeList)
+- **Books**: Search integration with OpenLibrary API
 - Results with images, synopsis, ratings, and details
-- Safe content filtering (SFW)
-- *Ready for*: Movies (TMDB), Books (OpenLibrary), Music (Spotify), etc.
+- Safe content filtering (SFW for anime)
 
-### ⭐ Favorites System
-- Mark/unmark content as favorite
-- Personalized favorites list per user
+### ⭐ Unified Favorites System
+- Mark/unmark both anime and books as favorites
+- Personal favorites list per user with content type indicators
 - Automatic duplicate prevention
+- Support for both anime and book metadata
 
-### 🎯 Smart Recommendations
-- Recommendations based on user favorites
-- Algorithm that avoids suggesting already bookmarked content
-- Rate limiting for external APIs
-- *Future*: Machine Learning for better recommendations
+### 🎯 Intelligent Recommendations
+- **Anime Recommendations**: Based on user's favorite anime using Jikan API
+- **Book Recommendations**: Based on favorite authors from user's book library
+- Avoids suggesting already bookmarked content
+- Rate limiting for external API calls
+
+### 🌍 Multi-language Support (Experimental)
+- Initial implementation of internationalization (i18n)
+- Support for Spanish, English, French, German, and Portuguese
+- *Note: Multi-language feature is in early development*
 
 ## 🏗️ Architecture
 
 ### Tech Stack
 - **Backend**: Django 4.2+, PostgreSQL
 - **Frontend**: Bootstrap 5, Font Awesome
-- **APIs**: Jikan (MyAnimeList), ready for TMDB, OpenLibrary
+- **APIs**: Jikan (MyAnimeList), OpenLibrary
 - **Containerization**: Docker + Docker Compose
+- **Internationalization**: Django i18n framework
 
 ### Project Structure
 ```
 multimodal-recommendation-system/
 ├── app/
-│   ├── models.py          # User, Favorite models
-│   ├── views.py           # Search and recommendation logic
+│   ├── models.py          # User, Favorite models (supports anime & books)
+│   ├── views.py           # Search and recommendation logic for both content types
 │   ├── forms.py           # User and search forms
-│   ├── templates/         # HTML templates with Bootstrap
+│   ├── templates/         # Bootstrap HTML templates with i18n tags
 │   └── migrations/        # Database migrations
-├── docker-compose.yml     # Services configuration
-├── Dockerfile            # Application image
-├── requirements.txt      # Python dependencies
+├── locale/               # Translation files (experimental)
+├── docker-compose.yml    # Services configuration
+├── Dockerfile           # Application image with gettext support
+├── requirements.txt     # Python dependencies
 └── README.md
 ```
 
@@ -56,7 +64,7 @@ multimodal-recommendation-system/
 - Docker and Docker Compose installed
 - Port 8080 available
 
-### Installation Steps
+### Quick Start
 
 1. **Clone the repository**
    ```bash
@@ -64,123 +72,137 @@ multimodal-recommendation-system/
    cd multimodal-recommendation-system
    ```
 
-2. **Build containers**
+2. **Start with Docker**
    ```bash
    docker-compose build
-   ```
-
-3. **Start services**
-   ```bash
    docker-compose up -d
-   ```
-
-4. **Run migrations**
-   ```bash
    docker-compose run web python manage.py migrate
    ```
 
-5. **Create superuser (optional)**
-   ```bash
-   docker-compose run web python manage.py createsuperuser
-   ```
-
-6. **Access the application**
+3. **Access the application**
    - Application: http://localhost:8080
    - Admin: http://localhost:8080/admin
 
-## 📱 System Usage
+## 📱 How to Use
 
-### For Users
-1. **Registration**: Create account with email and password
-2. **Search**: Search anime by title or keywords
-3. **Favorites**: Bookmark content of interest
-4. **Recommendations**: Receive personalized suggestions
+1. **Register** an account or login
+2. **Search** for anime or books by title/keywords
+3. **Add to favorites** content you like (anime or books)
+4. **Get recommendations** based on your favorites for both content types
+5. **Manage** your unified favorites list
+6. **Try language switching** (experimental feature in navbar)
 
-### For Developers
-- **Admin Panel**: Complete management of users and favorites
-- **API Ready**: Structure prepared for multiple APIs
-- **Extensible**: Easy to add new content types
-
-## 🔧 Useful Commands
+## 🔧 Development Commands
 
 ```bash
-# View application logs
+# View logs
 docker-compose logs web
 
-# Stop services
+# Access Django shell
+docker-compose exec web python manage.py shell
+
+# Compile translations (for i18n)
+docker-compose exec web python manage.py compilemessages
+
+# Stop/start services
 docker-compose down
+docker-compose up -d
 
-# Restart services
-docker-compose restart
-
-# Run Django commands
+# Django commands
 docker-compose run web python manage.py [command]
 
-# Interactive shell
-docker-compose run web python manage.py shell
+# Create superuser
+docker-compose run web python manage.py createsuperuser
 ```
 
-## 🌟 Roadmap & Planned Expansions
+## 🛠️ Current Implementation
 
-### 📺 Movies & TV Shows
-- TMDB (The Movie Database) integration
-- Search by genre, year, director
-- Trailers and detailed information
+## 🔧 Current Implementation
 
-### 📚 Books
-- OpenLibrary API integration
-- Search by author, genre, ISBN
-- Reviews and ratings
+- **Anime search** via Jikan API (MyAnimeList database)
+- **Book search** via OpenLibrary API with author information
+- **PostgreSQL** for user data and unified favorites storage
+- **Bootstrap 5** responsive UI with custom styling
+- **Session-based** user authentication
+- **Docker containerization** for easy deployment
+- **Basic i18n framework** (experimental multi-language support)
 
-### 🎵 Music
-- Spotify API integration
-- Search artists, albums, playlists
-- Genre-based recommendations
+## 🚧 Known Limitations
 
-### 🧠 AI & Machine Learning
-- Sentiment analysis on reviews
-- Similar user clustering
-- Advanced recommendation algorithms
-- Natural language processing for better search
+- **Multi-language feature** is in early development - translations may not work consistently
+- **Book recommendations** are basic (author-based only)
+- **API rate limiting** may cause delays during heavy usage
 
-### 📊 Analytics & Metrics
-- User statistics dashboard
-- Content popularity metrics
-- A/B testing for recommendation algorithms
+## 🌟 Future Improvements
 
-## 🛡️ Security & Considerations
+### 🎯 Core Features
+- Enhanced recommendation algorithms
+- Better multi-language implementation
+- Advanced search filters
+- User reviews and ratings
 
-- Input validation on all forms
-- Rate limiting for external APIs
-- Secure sessions with configurable timeouts
-- External API data sanitization
-- Production-ready HTTPS support
+### 📺 Additional Content Types (Planned)
+- Movies & TV Shows (TVmaze API)
+- Music albums and artists
+- Podcasts and audiobooks
 
 ## 🤝 Contributing
 
 1. Fork the project
 2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Open a Pull Request
+3. Implement your changes
+4. Test with Docker
+5. Submit a Pull Request
 
-### Areas Needing Contribution
-- New API implementations (TMDB, OpenLibrary, Spotify)
-- Recommendation algorithm improvements
-- Unit and integration tests
-- Performance optimization
+### Areas for Contribution
+- Fix i18n implementation
+- Improve recommendation algorithms
 - UI/UX improvements
+- Unit tests
+- Performance optimization
+- New API integrations
 
 ## 📄 License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License.
 
-## 📞 Contact & Support
+## 🌟 Planned Expansions
 
-- **Issues**: Report bugs or request features on GitHub Issues
-- **Documentation**: Repository Wiki for detailed guides
-- **API Docs**: Endpoint documentation at `/docs/` (coming soon)
+### 📺 Movies & TV Shows
+- Integration with TVmaze API
+- Search by title, genre, year
+
+### 📚 Books  
+- OpenLibrary API integration
+- Search by author, title, ISBN
+
+### 🎵 Music (Future)
+- Music database APIs
+- Artist and album search
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/new-api`)
+3. Implement your changes
+4. Test with Docker
+5. Submit a Pull Request
+
+### Areas for Contribution
+- New API integrations (TVmaze, OpenLibrary)
+- UI/UX improvements
+- Better recommendation algorithms
+- Unit tests
+- Performance optimization
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🔗 Origin
+
+Based on the Django skeleton from [HolaDjango](https://github.com/gabrielhuav/HolaDjango/tree/6cv4)
 
 ---
 
-*System developed with ❤️ using Django, PostgreSQL, and Docker. Ready to scale to multiple multimedia content types.*
+*A simple yet expandable content discovery platform built with Django and Docker.*

@@ -1,0 +1,202 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-22 01:50+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Navegación
+msgid "Sistema de Usuarios"
+msgstr "Sistema de Usuarios"
+
+msgid "Sistema Usuarios"
+msgstr "Sistema Usuarios"
+
+msgid "Inicio"
+msgstr "Inicio"
+
+msgid "Buscar Anime"
+msgstr "Buscar Anime"
+
+msgid "Buscar Libros"
+msgstr "Buscar Libros"
+
+msgid "Mis Favoritos"
+msgstr "Mis Favoritos"
+
+msgid "Recomendaciones"
+msgstr "Recomendaciones"
+
+msgid "Anime"
+msgstr "Anime"
+
+msgid "Libros"
+msgstr "Libros"
+
+msgid "Hola"
+msgstr "Hola"
+
+msgid "Cerrar Sesión"
+msgstr "Cerrar Sesión"
+
+msgid "Iniciar Sesión"
+msgstr "Iniciar Sesión"
+
+msgid "Registrarse"
+msgstr "Registrarse"
+
+# Formularios
+msgid "Nombre Completo"
+msgstr "Nombre Completo"
+
+msgid "Correo Electrónico"
+msgstr "Correo Electrónico"
+
+msgid "Contraseña"
+msgstr "Contraseña"
+
+msgid "Confirmar Contraseña"
+msgstr "Confirmar Contraseña"
+
+msgid "Rol de Usuario"
+msgstr "Rol de Usuario"
+
+msgid "Usuario"
+msgstr "Usuario"
+
+msgid "Administrador"
+msgstr "Administrador"
+
+# Páginas
+msgid "Buscar Anime en Jikan API"
+msgstr "Buscar Anime en Jikan API"
+
+msgid "Buscar Libro"
+msgstr "Buscar Libro"
+
+msgid "Buscar Libros en OpenLibrary"
+msgstr "Buscar Libros en OpenLibrary"
+
+msgid "Animes Recomendados para Ti"
+msgstr "Animes Recomendados para Ti"
+
+msgid "Libros Recomendados para Ti"
+msgstr "Libros Recomendados para Ti"
+
+# Mensajes
+msgid "Añadido a tus favoritos."
+msgstr "Añadido a tus favoritos."
+
+msgid "Eliminado de tus favoritos."
+msgstr "Eliminado de tus favoritos."
+
+msgid "Añadir a Favoritos"
+msgstr "Añadir a Favoritos"
+
+msgid "Quitar de Favoritos"
+msgstr "Quitar de Favoritos"
+
+msgid "Ver en MyAnimeList"
+msgstr "Ver en MyAnimeList"
+
+msgid "Ver en OpenLibrary"
+msgstr "Ver en OpenLibrary"
+
+msgid "Más detalles en MyAnimeList"
+msgstr "Más detalles en MyAnimeList"
+
+msgid "No se encontraron resultados para tu búsqueda."
+msgstr "No se encontraron resultados para tu búsqueda."
+
+msgid "Basado en tus animes favoritos, podrías disfrutar de:"
+msgstr "Basado en tus animes favoritos, podrías disfrutar de:"
+
+msgid "Basado en tus libros favoritos, podrías disfrutar de:"
+msgstr "Basado en tus libros favoritos, podrías disfrutar de:"
+
+# Campos de búsqueda
+msgid "Buscar"
+msgstr "Buscar"
+
+msgid "Resultados de la Búsqueda:"
+msgstr "Resultados de la Búsqueda:"
+
+msgid "Tipo"
+msgstr "Tipo"
+
+msgid "Episodios"
+msgstr "Episodios"
+
+msgid "Puntuación"
+msgstr "Puntuación"
+
+msgid "Autor"
+msgstr "Autor"
+
+msgid "Año"
+msgstr "Año"
+
+msgid "Idiomas"
+msgstr "Idiomas"
+
+msgid "Autor desconocido"
+msgstr "Autor desconocido"
+
+msgid "No hay sinopsis disponible."
+msgstr "No hay sinopsis disponible."
+
+msgid "No hay descripción disponible."
+msgstr "No hay descripción disponible."
+
+msgid "Sin imagen"
+msgstr "Sin imagen"
+
+# Estados y mensajes de error
+msgid "Aún no has añadido ningún contenido a tus favoritos."
+msgstr "Aún no has añadido ningún contenido a tus favoritos."
+
+msgid "Aún no has añadido ningún anime a tus favoritos."
+msgstr "Aún no has añadido ningún anime a tus favoritos."
+
+msgid "Añade algunos animes a tus favoritos para obtener recomendaciones."
+msgstr "Añade algunos animes a tus favoritos para obtener recomendaciones."
+
+msgid "Añade algunos libros a tus favoritos para obtener recomendaciones."
+msgstr "Añade algunos libros a tus favoritos para obtener recomendaciones."
+
+msgid "No pudimos encontrar recomendaciones nuevas en este momento."
+msgstr "No pudimos encontrar recomendaciones nuevas en este momento."
+
+msgid "No pudimos encontrar recomendaciones de libros en este momento."
+msgstr "No pudimos encontrar recomendaciones de libros en este momento."
+
+msgid "Intenta añadir más animes a tus favoritos o revisa más tarde."
+msgstr "Intenta añadir más animes a tus favoritos o revisa más tarde."
+
+msgid "Intenta añadir más libros a tus favoritos o revisa más tarde."
+msgstr "Intenta añadir más libros a tus favoritos o revisa más tarde."
+
+msgid "Buscar Más Animes"
+msgstr "Buscar Más Animes"
+
+msgid "Buscar Más Libros"
+msgstr "Buscar Más Libros"
+
+msgid "Agregado"
+msgstr "Agregado"
+
+msgid "por"
+msgstr "por"

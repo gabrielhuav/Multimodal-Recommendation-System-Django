@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from .models import Usuario, Favorito
-from .forms import UsuarioForm, LoginForm, AnimeSearchForm
+from .forms import UsuarioForm, LoginForm, AnimeSearchForm, LibroSearchForm
+from django.utils.translation import activate
+from django.utils import translation
 import requests
 import time # Added for rate limiting in recommendations
 
@@ -13,7 +15,7 @@ def index(request):
             usuario = Usuario.objects.get(id=request.session['usuario_id'])
             user_info = f"<p>Bienvenido, {usuario.nombre}! (<a href='/logout/'>Cerrar sesión</a>)</p>"
             # Adding links for new features if user is logged in
-            user_info += "<p><a href='/buscar-anime/'>Buscar Anime</a> | <a href='/mis-favoritos/'>Mis Favoritos</a> | <a href='/recomendaciones/'>Recomendaciones</a></p>"
+            user_info += "<p><a href='/buscar-anime/'>Buscar Anime</a> | <a href='/buscar-libros/'>Buscar Libros</a> | <a href='/mis-favoritos/'>Mis Favoritos</a> | <a href='/recomendaciones/'>Recomendaciones Anime</a> | <a href='/recomendaciones-libros/'>Recomendaciones Libros</a></p>"
         except Usuario.DoesNotExist:
             request.session.flush() # Clear session if user ID is invalid
             user_info = "<p><a href='/login/'>Iniciar sesión</a> | <a href='/registro/'>Registrarse</a></p>"
@@ -87,7 +89,7 @@ def buscar_anime(request):
     resultados_api = None
     error_api = None
     
-    favoritos_ids = list(Favorito.objects.filter(usuario=current_user).values_list('anime_id', flat=True))
+    favoritos_ids = list(Favorito.objects.filter(usuario=current_user, tipo_contenido='anime').values_list('contenido_id', flat=True))
 
     if request.method == 'GET' and 'query' in request.GET:
         form = AnimeSearchForm(request.GET)
@@ -108,7 +110,7 @@ def buscar_anime(request):
         for anime_data in resultados_api:
             mal_id = anime_data.get('mal_id')
             if isinstance(mal_id, int):
-                anime_data['es_favorito'] = mal_id in favoritos_ids
+                anime_data['es_favorito'] = str(mal_id) in favoritos_ids
             else:
                 anime_data['es_favorito'] = False 
             resultados_procesados.append(anime_data)
@@ -132,31 +134,33 @@ def toggle_favorito(request):
         return redirect(request.META.get('HTTP_REFERER', 'login_usuario'))
 
     if request.method == 'POST':
-        anime_id_str = request.POST.get('anime_id')
-        anime_titulo = request.POST.get('anime_titulo')
+        contenido_id = request.POST.get('contenido_id') or request.POST.get('anime_id')
+        contenido_titulo = request.POST.get('contenido_titulo') or request.POST.get('anime_titulo')
+        tipo_contenido = request.POST.get('tipo_contenido', 'anime')
+        autor = request.POST.get('autor', '')
 
-        if not anime_id_str or not anime_titulo:
+        if not contenido_id or not contenido_titulo:
             messages.error(request, 'Datos incompletos para marcar como favorito.')
             return redirect(request.META.get('HTTP_REFERER', 'buscar_anime'))
 
         try:
-            anime_id = int(anime_id_str)
-            
             favorito_existente, created = Favorito.objects.get_or_create(
                 usuario=usuario,
-                anime_id=anime_id,
-                defaults={'anime_titulo': anime_titulo}
+                contenido_id=str(contenido_id),
+                tipo_contenido=tipo_contenido,
+                defaults={
+                    'contenido_titulo': contenido_titulo,
+                    'autor': autor if tipo_contenido == 'libro' else None
+                }
             )
             
             if created:
-                messages.success(request, f'"{anime_titulo}" añadido a tus favoritos.')
+                messages.success(request, f'"{contenido_titulo}" añadido a tus favoritos.')
             else:
                 favorito_existente.delete()
-                messages.info(request, f'"{anime_titulo}" eliminado de tus favoritos.')
+                messages.info(request, f'"{contenido_titulo}" eliminado de tus favoritos.')
                 
-        except ValueError:
-            messages.error(request, 'ID de anime inválido.')
-        except Exception as e: # Catching generic exception for safety
+        except Exception as e:
             messages.error(request, f'Ocurrió un error al procesar tu solicitud: {str(e)}')
             
         return redirect(request.META.get('HTTP_REFERER', 'buscar_anime'))
@@ -189,7 +193,7 @@ def recomendaciones_anime(request):
         messages.error(request, 'Tu sesión no es válida. Por favor, inicia sesión nuevamente.')
         return redirect('login_usuario')
 
-    user_favoritos = Favorito.objects.filter(usuario=current_user)
+    user_favoritos = Favorito.objects.filter(usuario=current_user, tipo_contenido='anime')
     if not user_favoritos:
         messages.info(request, 'Añade algunos animes a tus favoritos para obtener recomendaciones.')
         return render(request, 'recomendaciones_anime.html', {'recomendaciones': []})
@@ -197,10 +201,10 @@ def recomendaciones_anime(request):
     recomendaciones_dict = {}
     error_api = None
     
-    favoritos_ids = list(user_favoritos.values_list('anime_id', flat=True))
+    favoritos_ids = list(user_favoritos.values_list('contenido_id', flat=True))
 
     for i, favorito in enumerate(user_favoritos):
-        anime_id = favorito.anime_id
+        anime_id = favorito.contenido_id
         try:
             if i > 0: 
                 time.sleep(0.4) # Jikan API rate limit: ~3 req/sec. Be considerate.
@@ -232,3 +236,154 @@ def recomendaciones_anime(request):
         'recomendaciones': recomendaciones_list,
         'error_api': error_api
     })
+
+def buscar_libros(request):
+    if 'usuario_id' not in request.session:
+        messages.warning(request, 'Debes iniciar sesión para buscar libros.')
+        return redirect('login_usuario')
+
+    try:
+        current_user = Usuario.objects.get(id=request.session['usuario_id'])
+    except Usuario.DoesNotExist:
+        request.session.flush()
+        messages.error(request, 'Tu sesión no es válida. Por favor, inicia sesión nuevamente.')
+        return redirect('login_usuario')
+
+    form = LibroSearchForm()
+    resultados_api = None
+    error_api = None
+    
+    favoritos_ids = list(Favorito.objects.filter(usuario=current_user, tipo_contenido='libro').values_list('contenido_id', flat=True))
+
+    if request.method == 'GET' and 'query' in request.GET:
+        form = LibroSearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            try:
+                response = requests.get(f"https://openlibrary.org/search.json?q={query}&limit=20")
+                response.raise_for_status() 
+                resultados_api = response.json().get('docs', [])
+            except requests.exceptions.RequestException as e:
+                error_api = f"Error al contactar la API de OpenLibrary: {e}"
+            except ValueError: 
+                error_api = "Error al procesar la respuesta de la API de OpenLibrary."
+    
+    resultados_procesados = []
+    if resultados_api:
+        for libro_data in resultados_api:
+            # Extraer información del libro
+            work_key = libro_data.get('key', '')
+            if work_key:
+                libro_data['work_id'] = work_key.split('/')[-1]
+                libro_data['es_favorito'] = libro_data['work_id'] in favoritos_ids
+                
+                # Procesar datos adicionales
+                libro_data['author_name'] = ', '.join(libro_data.get('author_name', ['Autor desconocido']))
+                libro_data['first_publish_year'] = libro_data.get('first_publish_year', 'N/A')
+                
+                # URL de la imagen del libro
+                if 'cover_i' in libro_data:
+                    libro_data['cover_url'] = f"https://covers.openlibrary.org/b/id/{libro_data['cover_i']}-M.jpg"
+                else:
+                    libro_data['cover_url'] = None
+                    
+                resultados_procesados.append(libro_data)
+
+    return render(request, 'libro_search.html', {
+        'form': form,
+        'resultados': resultados_procesados,
+        'error_api': error_api
+    })
+
+def recomendaciones_libros(request):
+    if 'usuario_id' not in request.session:
+        messages.warning(request, 'Debes iniciar sesión para ver recomendaciones.')
+        return redirect('login_usuario')
+
+    try:
+        current_user = Usuario.objects.get(id=request.session['usuario_id'])
+    except Usuario.DoesNotExist:
+        request.session.flush()
+        messages.error(request, 'Tu sesión no es válida. Por favor, inicia sesión nuevamente.')
+        return redirect('login_usuario')
+
+    user_favoritos_libros = Favorito.objects.filter(usuario=current_user, tipo_contenido='libro')
+    if not user_favoritos_libros:
+        messages.info(request, 'Añade algunos libros a tus favoritos para obtener recomendaciones.')
+        return render(request, 'recomendaciones_libros.html', {'recomendaciones': []})
+
+    recomendaciones_list = []
+    error_api = None
+    
+    favoritos_ids = list(user_favoritos_libros.values_list('contenido_id', flat=True))
+
+    # Buscar libros similares basados en los autores de libros favoritos
+    try:
+        for favorito in user_favoritos_libros[:3]:  # Limitamos a 3 favoritos para no saturar la API
+            # Obtener el autor del libro favorito
+            autor_busqueda = favorito.autor
+            if autor_busqueda and autor_busqueda != 'Autor desconocido':
+                # Buscar más libros del mismo autor
+                response = requests.get(f"https://openlibrary.org/search.json?author={autor_busqueda}&limit=5")
+                response.raise_for_status()
+                data = response.json().get('docs', [])
+                
+                for libro_data in data:
+                    work_key = libro_data.get('key', '')
+                    if work_key:
+                        work_id = work_key.split('/')[-1]
+                        # No recomendar libros que ya están en favoritos
+                        if work_id not in favoritos_ids:
+                            libro_data['work_id'] = work_id
+                            libro_data['es_favorito'] = False
+                            libro_data['author_name'] = ', '.join(libro_data.get('author_name', ['Autor desconocido']))
+                            libro_data['first_publish_year'] = libro_data.get('first_publish_year', 'N/A')
+                            
+                            if 'cover_i' in libro_data:
+                                libro_data['cover_url'] = f"https://covers.openlibrary.org/b/id/{libro_data['cover_i']}-M.jpg"
+                            else:
+                                libro_data['cover_url'] = None
+                                
+                            recomendaciones_list.append(libro_data)
+            
+            time.sleep(0.5)  # Rate limiting para OpenLibrary
+            
+    except requests.exceptions.RequestException as e:
+        error_api = f"Error al obtener recomendaciones de la API de OpenLibrary: {e}"
+    except ValueError:
+        error_api = "Error al procesar la respuesta de la API de OpenLibrary."
+
+    # Eliminar duplicados y limitar resultados
+    seen_ids = set()
+    recomendaciones_unicas = []
+    for libro in recomendaciones_list:
+        if libro['work_id'] not in seen_ids:
+            seen_ids.add(libro['work_id'])
+            recomendaciones_unicas.append(libro)
+            if len(recomendaciones_unicas) >= 12:  # Limitar a 12 recomendaciones
+                break
+
+    return render(request, 'recomendaciones_libros.html', {
+        'recomendaciones': recomendaciones_unicas,
+        'error_api': error_api
+    })
+
+def cambiar_idioma(request):
+    """Vista personalizada para cambiar el idioma"""
+    if request.method == 'POST':
+        language = request.POST.get('language')
+        if language:
+            # Activar el idioma en la sesión
+            translation.activate(language)
+            request.session['django_language'] = language
+            
+            # Obtener la URL de redirección
+            next_page = request.POST.get('next', '/')
+            
+            # Asegurar que la redirección sea segura
+            if not next_page or next_page.startswith('/i18n/'):
+                next_page = '/'
+                
+            return redirect(next_page)
+    
+    return redirect('/')
