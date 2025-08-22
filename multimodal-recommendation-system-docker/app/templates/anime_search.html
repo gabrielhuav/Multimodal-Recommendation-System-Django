@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Buscar Anime{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    Buscar Anime en Jikan API
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                <form method="get" id="animeSearchForm">
+                    {# No necesitamos csrf_token para un formulario GET #}
+                    
+                    <div class="input-group mb-4">
+                        {{ form.query }}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Buscar
+                        </button>
+                    </div>
+
+                    {% if form.query.errors %}
+                        <div class="text-danger small mt-1 mb-3">
+                            {% for error in form.query.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </form>
+
+                {% if error_api %}
+                    <div class="alert alert-danger">
+                        {{ error_api }}
+                    </div>
+                {% endif %}
+
+                {% if resultados is not None %}
+                    <h3 class="mt-4 mb-3">Resultados de la Búsqueda:</h3>
+                    {% if resultados %}
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            {% for anime in resultados %}
+                            <div class="col">
+                                <div class="card h-100">
+                                    {% if anime.images.jpg.image_url %}
+                                    <img src="{{ anime.images.jpg.image_url }}" class="card-img-top" alt="{{ anime.title }}" style="height: 300px; object-fit: cover;">
+                                    {% endif %}
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">{{ anime.title }}</h5>
+                                        <p class="card-text small text-muted">
+                                            <strong>Tipo:</strong> {{ anime.type }} | 
+                                            <strong>Episodios:</strong> {{ anime.episodes|default:"N/A" }} | 
+                                            <strong>Puntuación:</strong> {{ anime.score|default:"N/A" }}
+                                        </p>
+                                        <p class="card-text flex-grow-1" style="font-size: 0.85rem;">
+                                            {{ anime.synopsis|truncatewords:30|default:"No hay sinopsis disponible." }}
+                                        </p>
+                                        <a href="{{ anime.url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-auto">
+                                            Más detalles en MyAnimeList
+                                        </a>
+                                        
+                                        {% if anime.mal_id %} {# Asegurarse que mal_id existe y es un número #}
+                                        <form method="post" action="{% url 'toggle_favorito' %}" class="mt-2 d-grid">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="anime_id" value="{{ anime.mal_id }}">
+                                            <input type="hidden" name="anime_titulo" value="{{ anime.title }}">
+                                            <button type="submit" class="btn btn-sm {% if anime.es_favorito %}btn-danger{% else %}btn-warning{% endif %}">
+                                                <i class="fas fa-star me-1"></i>{% if anime.es_favorito %}Quitar de Favoritos{% else %}Añadir a Favoritos{% endif %}
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-meh fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No se encontraron resultados para tu búsqueda.</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

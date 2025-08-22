@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Usuario{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Registro de Nuevo Usuario
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" id="registroForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">
+                            {{ form.nombre.label }}
+                        </label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.nombre.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">
+                            {{ form.email.label }}
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.email.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.password_hash.id_for_label }}" class="form-label fw-bold">
+                            {{ form.password_hash.label }}
+                        </label>
+                        {{ form.password_hash }}
+                        {% if form.password_hash.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.password_hash.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.confirmar_password.id_for_label }}" class="form-label fw-bold">
+                            {{ form.confirmar_password.label }}
+                        </label>
+                        {{ form.confirmar_password }}
+                        {% if form.confirmar_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.confirmar_password.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.rol.id_for_label }}" class="form-label fw-bold">
+                            {{ form.rol.label }}
+                        </label>
+                        {{ form.rol }}
+                        {% if form.rol.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.rol.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Registrar Usuario
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="/usuarios/" class="text-white text-decoration-none">
+                Ver lista de usuarios registrados →
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('registroForm').addEventListener('submit', function(e) {
+    const password = document.querySelector('input[name="password_hash"]').value;
+    const confirmar = document.querySelector('input[name="confirmar_password"]').value;
+    
+    if (password !== confirmar) {
+        e.preventDefault();
+        alert('Las contraseñas no coinciden. Por favor, verifícalas.');
+    }
+});
+</script>
+{% endblock %}

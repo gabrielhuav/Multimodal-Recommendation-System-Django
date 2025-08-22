@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Animes Recomendados{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-magic me-2"></i>
+                    Animes Recomendados para Ti
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if error_api %}
+                    <div class="alert alert-danger">
+                        {{ error_api }}
+                    </div>
+                {% endif %}
+
+                {% if recomendaciones %}
+                    <p class="text-muted mb-4">Basado en tus animes favoritos, podrías disfrutar de:</p>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        {% for anime in recomendaciones %}
+                        <div class="col">
+                            <div class="card h-100">
+                                {% if anime.images.jpg.image_url %}
+                                <img src="{{ anime.images.jpg.image_url }}" class="card-img-top" alt="{{ anime.title }}" style="height: 300px; object-fit: cover;">
+                                {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <span class="text-muted">Sin imagen</span>
+                                </div>
+                                {% endif %}
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ anime.title }}</h5>
+                                    <p class="card-text small text-muted">
+                                        <strong>Tipo:</strong> {{ anime.type|default:"N/A" }} | 
+                                        <strong>Episodios:</strong> {{ anime.episodes|default:"N/A" }} | 
+                                        <strong>Puntuación:</strong> {{ anime.score|default:"N/A" }}
+                                    </p>
+                                    <p class="card-text flex-grow-1" style="font-size: 0.85rem;">
+                                        {{ anime.synopsis|truncatewords:30|default:"No hay sinopsis disponible." }}
+                                    </p>
+                                    <a href="{{ anime.url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-auto">
+                                        Más detalles en MyAnimeList
+                                    </a>
+                                    
+                                    {% if anime.mal_id %}
+                                    <form method="post" action="{% url 'toggle_favorito' %}" class="mt-2 d-grid">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="anime_id" value="{{ anime.mal_id }}">
+                                        <input type="hidden" name="anime_titulo" value="{{ anime.title }}">
+                                        {# Como estos animes no están en favoritos, el botón siempre será para añadir #}
+                                        <button type="submit" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-star me-1"></i>Añadir a Favoritos
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% elif not error_api and not messages %} 
+                    <div class="text-center py-5">
+                        <i class="fas fa-list-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted fs-5">No pudimos encontrar recomendaciones nuevas en este momento.</p>
+                        <p class="text-muted">Intenta añadir más animes a tus favoritos o revisa más tarde.</p>
+                        <a href="{% url 'buscar_anime' %}" class="btn btn-primary mt-2">
+                            <i class="fas fa-search me-1"></i> Buscar Más Animes
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

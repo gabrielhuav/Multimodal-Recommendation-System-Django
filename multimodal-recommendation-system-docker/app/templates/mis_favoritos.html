@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Animes Favoritos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-heart me-2 text-danger"></i>
+                    Mis Animes Favoritos
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if favoritos %}
+                    <ul class="list-group">
+                        {% for favorito in favoritos %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ favorito.anime_titulo }}</h5>
+                                <small class="text-muted">Agregado: {{ favorito.fecha_agregado|date:"d M, Y H:i" }}</small>
+                                <br>
+                                {# El anime_id guardado corresponde al mal_id #}
+                                <a href="https://myanimelist.net/anime/{{ favorito.anime_id }}" target="_blank" class="small text-decoration-none">
+                                    <i class="fas fa-external-link-alt me-1"></i>Ver en MyAnimeList
+                                </a>
+                            </div>
+                            <form method="post" action="{% url 'toggle_favorito' %}" class="ms-3">
+                                {% csrf_token %}
+                                <input type="hidden" name="anime_id" value="{{ favorito.anime_id }}">
+                                <input type="hidden" name="anime_titulo" value="{{ favorito.anime_titulo }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Quitar de favoritos">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-list-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted fs-5">Aún no has añadido ningún anime a tus favoritos.</p>
+                        <a href="{% url 'buscar_anime' %}" class="btn btn-primary mt-2">
+                            <i class="fas fa-search me-1"></i> Buscar Animes
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
